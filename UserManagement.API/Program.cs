@@ -14,14 +14,17 @@ using UserManagement.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Database & Entity Framework Core (SQL Server)
+// 1. HttpContextAccessor Registration
+builder.Services.AddHttpContextAccessor();
+
+// 2. Database & Entity Framework Core (SQL Server)
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-// 2. Identity Configuration
+// 3. Identity Configuration
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
 {
     options.Password.RequireDigit = true;
@@ -34,7 +37,7 @@ builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
-// 3. JWT Authentication Configuration
+// 4. JWT Authentication Configuration
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = jwtSettings["Secret"] ?? "SuperSecretKeyWithAtLeast32BytesLengthForSecurityRequirement!!";
 
@@ -60,11 +63,11 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// 4. Custom Permission Authorization Engine Registration
+// 5. Custom Permission Authorization Engine Registration
 builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
 builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
 
-// 5. Register Services
+// 6. Register Application Services
 builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
@@ -74,14 +77,14 @@ builder.Services.AddScoped<IPermissionService, PermissionService>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-// 6. Swagger API Documentation with JWT Bearer Support
+// 7. Swagger API Documentation with JWT Bearer Support
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo
     {
         Title = "User Management API",
         Version = "v1",
-        Description = ".NET 9 User Management API with Identity, Roles, and Permission-Based Access Control (PBAC)"
+        Description = ".NET 9 User Management API with Identity, Roles, Inline Audit Tracking, Soft Delete, and Permission-Based Access Control (PBAC)"
     });
 
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -112,7 +115,7 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
-// 7. Configure Middleware Pipeline
+// 8. Configure Middleware Pipeline
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 if (app.Environment.IsDevelopment())
@@ -130,7 +133,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// 8. Auto-apply EF Migrations and Seed Initial Database Data
+// 9. Auto-apply EF Migrations and Seed Initial Database Data
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();

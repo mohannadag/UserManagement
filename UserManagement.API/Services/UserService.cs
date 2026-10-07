@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using UserManagement.API.Data;
 using UserManagement.API.Models.DTOs;
 using UserManagement.API.Models.Entities;
 
@@ -19,9 +20,15 @@ namespace UserManagement.API.Services
             _roleManager = roleManager;
         }
 
-        public async Task<List<UserResponseDto>> GetAllUsersAsync()
+        public async Task<List<UserResponseDto>> GetAllUsersAsync(bool includeDeleted = false)
         {
-            var users = await _userManager.Users.ToListAsync();
+            IQueryable<ApplicationUser> query = _userManager.Users;
+            if (includeDeleted)
+            {
+                query = query.IgnoreQueryFilters();
+            }
+
+            var users = await query.ToListAsync();
             var userDtos = new List<UserResponseDto>();
 
             foreach (var user in users)
@@ -104,7 +111,24 @@ namespace UserManagement.API.Services
             var user = await _userManager.FindByIdAsync(id);
             if (user == null) return false;
 
+            // Delete will trigger ApplicationDbContext Soft Delete logic
             var result = await _userManager.DeleteAsync(user);
+            return result.Succeeded;
+        }
+
+        public async Task<bool> RestoreUserAsync(string id)
+        {
+            var user = await _userManager.Users
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(u => u.Id == id && u.IsDeleted);
+
+            if (user == null) return false;
+
+            user.IsDeleted = false;
+            user.DeletedAt = null;
+            user.DeletedBy = null;
+
+            var result = await _userManager.UpdateAsync(user);
             return result.Succeeded;
         }
 
@@ -176,6 +200,12 @@ namespace UserManagement.API.Services
                 UserName = user.UserName ?? string.Empty,
                 IsActive = user.IsActive,
                 CreatedAt = user.CreatedAt,
+                CreatedBy = user.CreatedBy,
+                UpdatedAt = user.UpdatedAt,
+                UpdatedBy = user.UpdatedBy,
+                IsDeleted = user.IsDeleted,
+                DeletedAt = user.DeletedAt,
+                DeletedBy = user.DeletedBy,
                 Roles = roles,
                 Permissions = permissions
             };

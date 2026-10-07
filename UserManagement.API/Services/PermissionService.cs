@@ -17,7 +17,8 @@ namespace UserManagement.API.Services
                         new PermissionItemDto { Name = "View Users", ClaimValue = SystemPermissions.Users.View, Description = "Allows viewing list and details of users." },
                         new PermissionItemDto { Name = "Create User", ClaimValue = SystemPermissions.Users.Create, Description = "Allows creating new users." },
                         new PermissionItemDto { Name = "Edit User", ClaimValue = SystemPermissions.Users.Edit, Description = "Allows updating user details." },
-                        new PermissionItemDto { Name = "Delete User", ClaimValue = SystemPermissions.Users.Delete, Description = "Allows deleting users." },
+                        new PermissionItemDto { Name = "Delete User", ClaimValue = SystemPermissions.Users.Delete, Description = "Allows soft deleting users." },
+                        new PermissionItemDto { Name = "Restore User", ClaimValue = SystemPermissions.Users.Restore, Description = "Allows restoring soft deleted users." },
                         new PermissionItemDto { Name = "Assign User Roles", ClaimValue = SystemPermissions.Users.AssignRoles, Description = "Allows assigning roles to users." },
                         new PermissionItemDto { Name = "Assign User Permissions", ClaimValue = SystemPermissions.Users.AssignPermissions, Description = "Allows assigning direct claims/permissions to users." },
                         new PermissionItemDto { Name = "Toggle User Status", ClaimValue = SystemPermissions.Users.ToggleStatus, Description = "Allows enabling or disabling user accounts." }

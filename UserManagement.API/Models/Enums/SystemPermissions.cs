@@ -8,6 +8,7 @@ namespace UserManagement.API.Models.Enums
             public const string Create = "Permissions.Users.Create";
             public const string Edit = "Permissions.Users.Edit";
             public const string Delete = "Permissions.Users.Delete";
+            public const string Restore = "Permissions.Users.Restore";
             public const string AssignRoles = "Permissions.Users.AssignRoles";
             public const string AssignPermissions = "Permissions.Users.AssignPermissions";
             public const string ToggleStatus = "Permissions.Users.ToggleStatus";
@@ -35,6 +36,7 @@ namespace UserManagement.API.Models.Enums
                 Users.Create,
                 Users.Edit,
                 Users.Delete,
+                Users.Restore,
                 Users.AssignRoles,
                 Users.AssignPermissions,
                 Users.ToggleStatus,

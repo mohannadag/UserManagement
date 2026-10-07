@@ -21,9 +21,9 @@ namespace UserManagement.API.Controllers
 
         [HttpGet]
         [HasPermission(SystemPermissions.Users.View)]
-        public async Task<IActionResult> GetAllUsers()
+        public async Task<IActionResult> GetAllUsers([FromQuery] bool includeDeleted = false)
         {
-            var users = await _userService.GetAllUsersAsync();
+            var users = await _userService.GetAllUsersAsync(includeDeleted);
             return Ok(users);
         }
 
@@ -72,8 +72,17 @@ namespace UserManagement.API.Controllers
         public async Task<IActionResult> DeleteUser(string id)
         {
             var success = await _userService.DeleteUserAsync(id);
-            if (!success) return NotFound(new { message = "User not found or could not be deleted." });
-            return Ok(new { message = "User deleted successfully." });
+            if (!success) return NotFound(new { message = "User not found or could not be soft-deleted." });
+            return Ok(new { message = "User soft-deleted successfully." });
+        }
+
+        [HttpPost("{id}/restore")]
+        [HasPermission(SystemPermissions.Users.Restore)]
+        public async Task<IActionResult> RestoreUser(string id)
+        {
+            var success = await _userService.RestoreUserAsync(id);
+            if (!success) return NotFound(new { message = "Soft-deleted user not found." });
+            return Ok(new { message = "User restored successfully." });
         }
 
         [HttpPost("{id}/roles")]

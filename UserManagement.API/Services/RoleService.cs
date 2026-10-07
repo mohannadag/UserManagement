@@ -126,6 +126,12 @@ namespace UserManagement.API.Services
                 Name = role.Name ?? string.Empty,
                 Description = role.Description,
                 CreatedAt = role.CreatedAt,
+                CreatedBy = role.CreatedBy,
+                UpdatedAt = role.UpdatedAt,
+                UpdatedBy = role.UpdatedBy,
+                IsDeleted = role.IsDeleted,
+                DeletedAt = role.DeletedAt,
+                DeletedBy = role.DeletedBy,
                 Permissions = permissions
             };
         }
